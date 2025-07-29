@@ -1,0 +1,48 @@
+SCREENSHOT REQUIREMENTS
+
+iPhone 6.7" (1290 x 2796) - iPhone 15 Pro Max
+iPhone 6.5" (1242 x 2688) - iPhone 11 Pro Max  
+iPhone 5.5" (1242 x 2208) - iPhone 8 Plus
+iPad 12.9" (2048 x 2732) - iPad Pro
+
+SCREENSHOT ORDER & CAPTIONS:
+
+1. HERO SHOT - Scanning Screen
+Caption: "Snap Any Problem, Get Instant Solutions"
+Description: Show camera viewfinder with math equation visible
+
+2. SOLUTION VIEW  
+Caption: "Step-by-Step Explanations"
+Description: Display detailed solution with steps highlighted
+
+3. SUBJECTS GRID
+Caption: "All Subjects Covered"
+Description: Show subject selection with colorful icons
+
+4. STREAK CELEBRATION
+Caption: "Build Study Habits"  
+Description: Show 7-day streak celebration animation
+
+5. PREMIUM FEATURES
+Caption: "Unlock Unlimited Learning"
+Description: Show paywall with pricing options
+
+6. HISTORY VIEW
+Caption: "Review Past Solutions"
+Description: Show list of saved problems
+
+DESIGN TIPS:
+- Use device frames for professional look
+- Include status bar with carrier, time, battery
+- Show real homework problems (not lorem ipsum)
+- Emphasize the glass morphism UI design
+- Include diverse subject examples
+- Show actual AI responses
+
+APP PREVIEW VIDEO (Optional):
+30 seconds showing:
+0-5s: Problem with homework
+5-10s: Open app and scan
+10-20s: Show solution appearing
+20-25s: Browse features
+25-30s: Call to action

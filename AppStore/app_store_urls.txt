@@ -1,0 +1,36 @@
+AI Homework Helper - App Store URLs
+===================================
+
+GitHub Pages URLs (after deployment):
+------------------------------------
+Homepage: https://[your-github-username].github.io/AIHomeworkHelper/
+Privacy Policy: https://[your-github-username].github.io/AIHomeworkHelper/privacy-policy.html
+Terms of Service: https://[your-github-username].github.io/AIHomeworkHelper/terms-of-service.html
+
+Note: Replace [your-github-username] with your actual GitHub username.
+
+App Store Submission Fields:
+---------------------------
+1. Privacy Policy URL (Required):
+   Enter: https://[your-github-username].github.io/AIHomeworkHelper/privacy-policy.html
+
+2. Terms of Use URL (Optional but recommended):
+   Enter: https://[your-github-username].github.io/AIHomeworkHelper/terms-of-service.html
+
+3. Support URL (Required):
+   Enter: https://[your-github-username].github.io/AIHomeworkHelper/
+
+Additional Notes:
+----------------
+- Make sure to deploy to GitHub Pages before submitting to App Store
+- URLs must be accessible and working
+- Apple reviewers will check these pages
+- Keep the pages updated with any policy changes
+- Consider adding a custom domain later for professional appearance
+
+Email Addresses Used:
+--------------------
+Support: support@aihomeworkhelper.app
+Privacy: privacy@aihomeworkhelper.app
+
+(Note: Set up email forwarding for these addresses or update them to your actual email)

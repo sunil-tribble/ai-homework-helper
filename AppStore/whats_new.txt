@@ -1,0 +1,30 @@
+WHAT'S NEW IN VERSION 1.0
+
+🎉 Welcome to AI Homework Helper!
+
+This is our first release, packed with features to help you succeed:
+
+✨ NEW FEATURES
+• AI-Powered Solutions - Get instant help with any homework problem
+• Camera Scanner - Snap and solve in seconds
+• Voice Input - Speak your questions naturally
+• Step-by-Step Explanations - Learn as you solve
+• Multi-Subject Support - Math, Science, English, History, and more
+• Daily Streaks - Build consistent study habits
+• Achievement System - Unlock badges as you progress
+
+🎯 PREMIUM FEATURES
+• Unlimited solutions (Free users get 5/day)
+• Visual math tools and graphs
+• Priority support
+• Ad-free experience
+
+🐛 COMING SOON
+• Study groups and peer collaboration
+• More languages
+• Offline mode improvements
+• Parent dashboard
+
+Thank you for choosing AI Homework Helper! We're excited to help you achieve academic success.
+
+Questions or feedback? Contact us at support@aihomeworkhelper.app
