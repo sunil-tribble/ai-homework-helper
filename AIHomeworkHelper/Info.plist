@@ -69,5 +69,9 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>UIPrivacyPolicyURL</key>
+	<string>https://sunil-tribble.github.io/ai-homework-helper/privacy-policy.html</string>
+	<key>UITermsOfServiceURL</key>
+	<string>https://sunil-tribble.github.io/ai-homework-helper/terms-of-service.html</string>
 </dict>
 </plist>
