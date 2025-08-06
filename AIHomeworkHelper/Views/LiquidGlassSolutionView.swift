@@ -127,7 +127,7 @@ struct LiquidGlassSolutionView: View {
                         .font(.body)
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .liquidGlass(style: .ultraThin, luminosity: 0.8)
+                        .modifier(ConditionalLiquidGlass(style: .ultraThin, luminosity: 0.8))
                         .cornerRadius(12)
                 }
                 
@@ -225,7 +225,7 @@ struct LiquidGlassSolutionView: View {
                             .font(.body)
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .liquidGlass(style: .thin, luminosity: 1.2)
+                            .modifier(ConditionalLiquidGlass(style: .thin, luminosity: 1.2))
                             .cornerRadius(12)
                     }
                     
@@ -307,7 +307,7 @@ struct LiquidGlassSolutionView: View {
                     .font(.caption)
                     .foregroundColor(.purple)
                     .padding()
-                    .liquidGlass(style: .ultraThin, luminosity: 0.6)
+                    .modifier(ConditionalLiquidGlass(style: .ultraThin, luminosity: 0.6))
                     .cornerRadius(12)
                 }
             }
@@ -348,7 +348,7 @@ struct LiquidGlassSolutionView: View {
         let lowercased = solution.lowercased()
         
         for pattern in patterns {
-            if let range = lowercased.range(of: pattern) {
+            if let range = lowercased.range(of: pattern), range.upperBound < solution.endIndex {
                 let afterPattern = String(solution[range.upperBound...])
                 let lines = afterPattern.components(separatedBy: .newlines)
                 if let firstLine = lines.first?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -448,11 +448,11 @@ struct StepCard: View {
             }
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .liquidGlass(
+            .modifier(ConditionalLiquidGlass(
                 style: isSelected ? .regular : .thin,
                 luminosity: isSelected ? 1.2 : 0.8,
                 refractionIntensity: isSelected ? 1.5 : 1.0
-            )
+            ))
             .cornerRadius(16)
             .scaleEffect(isRevealed ? 1 : 0.95)
             .opacity(isRevealed ? 1 : 0)
@@ -488,7 +488,7 @@ struct FinalAnswerCard: View {
                 .foregroundColor(.primary)
                 .padding()
                 .frame(maxWidth: .infinity)
-                .liquidGlass(style: .regular, luminosity: 1.5)
+                .modifier(ConditionalLiquidGlass(style: .regular, luminosity: 1.5))
                 .cornerRadius(16)
                 .shadow(
                     color: Color.green.opacity(glowAnimation ? 0.4 : 0.2),
@@ -536,7 +536,7 @@ struct SubjectBadge: View {
 }
 
 struct DifficultyBadge: View {
-    let difficulty: Problem.Difficulty
+    let difficulty: Difficulty
     
     var body: some View {
         Text(difficulty.rawValue)
@@ -572,10 +572,12 @@ struct HintProgressIndicator: View {
     
     var body: some View {
         HStack(spacing: 6) {
-            ForEach(1...total, id: \.self) { index in
-                Circle()
-                    .fill(index <= current ? Color.yellow : Color.gray.opacity(0.3))
-                    .frame(width: 6, height: 6)
+            if total > 0 {
+                ForEach(1...total, id: \.self) { index in
+                    Circle()
+                        .fill(index <= current ? Color.yellow : Color.gray.opacity(0.3))
+                        .frame(width: 6, height: 6)
+                }
             }
         }
         .padding(.horizontal, 12)
@@ -584,5 +586,72 @@ struct HintProgressIndicator: View {
             Capsule()
                 .fill(.ultraThinMaterial)
         )
+    }
+}
+
+// MARK: - Conditional Liquid Glass Modifier
+
+struct ConditionalLiquidGlass: ViewModifier {
+    enum Style {
+        case ultraThin
+        case thin
+        case regular
+        case thick
+        case frosted
+    }
+    
+    let style: Style
+    let luminosity: Double
+    let refractionIntensity: Double
+    
+    init(style: Style, luminosity: Double = 1.0, refractionIntensity: Double = 1.0) {
+        self.style = style
+        self.luminosity = luminosity
+        self.refractionIntensity = refractionIntensity
+    }
+    
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, *) {
+            content
+                .liquidGlass(
+                    style: liquidGlassStyle,
+                    luminosity: luminosity,
+                    refractionIntensity: refractionIntensity
+                )
+        } else {
+            content
+                .background(
+                    RoundedRectangle(cornerRadius: 0)
+                        .fill(.ultraThinMaterial)
+                        .overlay(
+                            LinearGradient(
+                                colors: [Color.white.opacity(opacity), Color.clear],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                )
+        }
+    }
+    
+    @available(iOS 18.0, *)
+    private var liquidGlassStyle: LiquidGlassMaterial.GlassStyle {
+        switch style {
+        case .ultraThin: return .ultraThin
+        case .thin: return .thin
+        case .regular: return .regular
+        case .thick: return .thick
+        case .frosted: return .frosted
+        }
+    }
+    
+    private var opacity: Double {
+        switch style {
+        case .ultraThin: return 0.05 * luminosity
+        case .thin: return 0.1 * luminosity
+        case .regular: return 0.15 * luminosity
+        case .thick: return 0.2 * luminosity
+        case .frosted: return 0.25 * luminosity
+        }
     }
 }

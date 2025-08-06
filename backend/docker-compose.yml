@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai-homework-db
+    environment:
+      POSTGRES_DB: ai_homework
+      POSTGRES_USER: ${DB_USER:-homework_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secure_password_here}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U homework_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: ai-homework-backend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://${DB_USER:-homework_user}:${DB_PASSWORD:-secure_password_here}@postgres:5432/ai_homework
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  postgres_data:

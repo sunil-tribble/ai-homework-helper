@@ -71,7 +71,12 @@ struct ParticleSystem: View {
         particles = (0..<particleCount).map { _ in
             let startPosition = getEmissionPosition()
             let angle = Double.random(in: 0...(2 * .pi))
-            let speed = CGFloat.random(in: 50...spread)
+            let minSpeed: CGFloat = min(50, spread)
+            let maxSpeed: CGFloat = max(50, spread)
+            let speed = CGFloat.random(in: minSpeed...maxSpeed)
+            
+            let minSize = max(1, particleSize * 0.5)
+            let maxSize = max(minSize, particleSize * 1.5)
             
             return Particle(
                 position: startPosition,
@@ -80,7 +85,7 @@ struct ParticleSystem: View {
                     dy: Darwin.sin(angle) * speed
                 ),
                 color: colors.randomElement() ?? .white,
-                size: CGFloat.random(in: particleSize * 0.5...particleSize * 1.5),
+                size: CGFloat.random(in: minSize...maxSize),
                 rotation: Double.random(in: 0...360)
             )
         }
@@ -92,15 +97,18 @@ struct ParticleSystem: View {
             return .zero
         case .circle(let radius):
             let angle = Double.random(in: 0...(2 * .pi))
-            let r = CGFloat.random(in: 0...radius)
+            let maxRadius = max(0, radius)
+            let r = CGFloat.random(in: 0...maxRadius)
             return CGPoint(
                 x: Darwin.cos(angle) * r,
                 y: Darwin.sin(angle) * r
             )
         case .rectangle(let width, let height):
+            let halfWidth = abs(width) / 2
+            let halfHeight = abs(height) / 2
             return CGPoint(
-                x: CGFloat.random(in: -width/2...width/2),
-                y: CGFloat.random(in: -height/2...height/2)
+                x: CGFloat.random(in: -halfWidth...halfWidth),
+                y: CGFloat.random(in: -halfHeight...halfHeight)
             )
         }
     }
@@ -156,23 +164,12 @@ struct StarBurst: View {
     var body: some View {
         ZStack {
             ForEach(0..<8) { index in
-                Star(points: 4, smoothness: 0.3)
-                    .fill(
-                        LinearGradient(
-                            colors: [color, color.opacity(0.3)],
-                            startPoint: .center,
-                            endPoint: .bottom
-                        )
-                    )
-                    .frame(width: size, height: size)
-                    .scaleEffect(animate ? 1.5 : 0.1)
-                    .opacity(animate ? 0 : 1)
-                    .rotationEffect(.degrees(Double(index) * 45))
-                    .animation(
-                        .easeOut(duration: 1.0)
-                        .delay(Double(index) * 0.1),
-                        value: animate
-                    )
+                StarBurstRay(
+                    index: index,
+                    size: size,
+                    color: color,
+                    animate: animate
+                )
             }
         }
         .onAppear {
@@ -181,8 +178,36 @@ struct StarBurst: View {
     }
 }
 
-/// Custom star shape
-struct Star: Shape {
+/// Individual star burst ray
+struct StarBurstRay: View {
+    let index: Int
+    let size: CGFloat
+    let color: Color
+    let animate: Bool
+    
+    var body: some View {
+        ParticleStarShape(points: 4, smoothness: 0.3)
+            .fill(
+                LinearGradient(
+                    colors: [color, color.opacity(0.3)],
+                    startPoint: .center,
+                    endPoint: .bottom
+                )
+            )
+            .frame(width: size, height: size)
+            .scaleEffect(animate ? 1.5 : 0.1)
+            .opacity(animate ? 0 : 1)
+            .rotationEffect(.degrees(Double(index) * 45))
+            .animation(
+                .easeOut(duration: 1.0)
+                    .delay(Double(index) * 0.1),
+                value: animate
+            )
+    }
+}
+
+/// Custom star shape for particles
+struct ParticleStarShape: Shape {
     let points: Int
     let smoothness: Double
     

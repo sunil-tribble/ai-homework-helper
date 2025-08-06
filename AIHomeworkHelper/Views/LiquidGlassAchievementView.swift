@@ -1,5 +1,40 @@
 import SwiftUI
 
+// MARK: - Badge Model
+struct Badge: Identifiable {
+    let id = UUID()
+    let name: String
+    let icon: String
+    let description: String
+    let category: Badge.BadgeCategory
+    let rarity: BadgeRarity
+    let unlockedDate: Date?
+    let progress: Double
+    
+    enum BadgeCategory {
+        case academic
+        case streak
+        case mastery
+        case special
+    }
+    
+    enum BadgeRarity {
+        case common
+        case rare
+        case epic
+        case legendary
+        
+        var color: Color {
+            switch self {
+            case .common: return .gray
+            case .rare: return .blue
+            case .epic: return .purple
+            case .legendary: return .orange
+            }
+        }
+    }
+}
+
 struct LiquidGlassAchievementView: View {
     @EnvironmentObject var userManager: UserManager
     @Environment(\.dismiss) private var dismiss
@@ -8,6 +43,16 @@ struct LiquidGlassAchievementView: View {
     @State private var animateIn = false
     @State private var particleSystem: ParticleSystem?
     @StateObject private var hapticManager = HapticManager.shared
+    
+    // Define all available badges
+    let allBadges: [Badge] = [
+        Badge(name: "First Steps", icon: "star.fill", description: "Complete your first problem", category: .academic, rarity: .common, unlockedDate: nil, progress: 0.0),
+        Badge(name: "Problem Solver", icon: "brain", description: "Solve 10 problems", category: .academic, rarity: .common, unlockedDate: nil, progress: 0.0),
+        Badge(name: "Streak Master", icon: "flame.fill", description: "Maintain a 7-day streak", category: .streak, rarity: .rare, unlockedDate: nil, progress: 0.0),
+        Badge(name: "Math Wizard", icon: "function", description: "Master calculus problems", category: .mastery, rarity: .epic, unlockedDate: nil, progress: 0.0),
+        Badge(name: "Night Owl", icon: "moon.stars.fill", description: "Study past midnight", category: .special, rarity: .rare, unlockedDate: nil, progress: 0.0),
+        Badge(name: "Perfect Score", icon: "checkmark.seal.fill", description: "Get 100% accuracy", category: .academic, rarity: .legendary, unlockedDate: nil, progress: 0.0)
+    ]
     
     let columns = [
         GridItem(.adaptive(minimum: 100, maximum: 120), spacing: 20)
@@ -62,15 +107,29 @@ struct LiquidGlassAchievementView: View {
                             .font(.headline)
                             .foregroundColor(.secondary)
                         
-                        Text("\(userManager.unlockedBadges.count) of \(allBadges.count)")
-                            .font(.system(size: 36, weight: .bold, design: .rounded))
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [.purple, .blue],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
+                        HStack(spacing: 4) {
+                            Text("\(userManager.unlockedBadges.count)")
+                                .font(.system(size: 36, weight: .bold, design: .rounded))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [.purple, .blue],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
                                 )
-                            )
+                            Text("of")
+                                .font(.system(size: 24, weight: .medium, design: .rounded))
+                                .foregroundColor(.secondary)
+                            Text("\(allBadges.count)")
+                                .font(.system(size: 36, weight: .bold, design: .rounded))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [.purple, .blue],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                        }
                         
                         Text("Badges Unlocked")
                             .font(.subheadline)
@@ -105,8 +164,8 @@ struct LiquidGlassAchievementView: View {
                 }
                 
                 // Recent unlock
-                if let recentBadge = userManager.lastBadgeUnlocked,
-                   let badge = allBadges.first(where: { $0.id == recentBadge }) {
+                if let recentBadgeId = userManager.lastBadgeUnlocked,
+                   let badge = allBadges.first(where: { $0.id.uuidString == recentBadgeId }) {
                     RecentUnlockCard(badge: badge)
                 }
             }
@@ -121,18 +180,29 @@ struct LiquidGlassAchievementView: View {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
-                    ForEach(BadgeCategory.allCases, id: \.self) { category in
+                    ForEach([Badge.BadgeCategory.academic, .streak, .mastery, .special], id: \.self) { category in
+                        let unlockedCount = getUnlockedCount(for: category)
+                        let totalCount = getTotalCount(for: category)
+                        
                         CategoryCard(
                             category: category,
-                            unlockedCount: userManager.unlockedBadges.filter { badge in
-                                allBadges.first(where: { $0.id == badge })?.category == category
-                            }.count,
-                            totalCount: allBadges.filter { $0.category == category }.count
+                            unlockedCount: unlockedCount,
+                            totalCount: totalCount
                         )
                     }
                 }
             }
         }
+    }
+    
+    private func getUnlockedCount(for category: Badge.BadgeCategory) -> Int {
+        userManager.unlockedBadges.filter { badgeId in
+            allBadges.first(where: { $0.id.uuidString == badgeId })?.category == category
+        }.count
+    }
+    
+    private func getTotalCount(for category: Badge.BadgeCategory) -> Int {
+        allBadges.filter { $0.category == category }.count
     }
     
     private var badgeGrid: some View {
@@ -144,7 +214,7 @@ struct LiquidGlassAchievementView: View {
                 ForEach(allBadges) { badge in
                     BadgeCell(
                         badge: badge,
-                        isUnlocked: userManager.unlockedBadges.contains(badge.id),
+                        isUnlocked: userManager.unlockedBadges.contains(badge.id.uuidString),
                         progress: getBadgeProgress(for: badge)
                     ) {
                         selectedBadge = badge
@@ -152,8 +222,7 @@ struct LiquidGlassAchievementView: View {
                     }
                     .liquidTransition(isVisible: animateIn)
                     .animation(
-                        .spring(response: 0.5, dampingFraction: 0.8)
-                            .delay(Double(allBadges.firstIndex(where: { $0.id == badge.id }) ?? 0) * 0.05),
+                        animationForBadge(badge),
                         value: animateIn
                     )
                 }
@@ -162,27 +231,13 @@ struct LiquidGlassAchievementView: View {
     }
     
     private func getBadgeProgress(for badge: Badge) -> Double {
-        switch badge.requirement {
-        case .solveProblemCount(let count):
-            return min(Double(userManager.totalSolves) / Double(count), 1.0)
-        case .maintainStreak(let days):
-            return min(Double(userManager.longestStreak) / Double(days), 1.0)
-        case .earnPoints(let points):
-            return min(Double(userManager.userPoints) / Double(points), 1.0)
-        case .completeDaily:
-            return userManager.dailySolvesUsed >= 5 ? 1.0 : Double(userManager.dailySolvesUsed) / 5.0
-        case .perfectWeek:
-            return userManager.weeklyProgress.allSatisfy { $0 } ? 1.0 : 
-                   Double(userManager.weeklyProgress.filter { $0 }.count) / 7.0
-        case .solveSubject(_, let count):
-            return 0.5 // Placeholder - would need subject-specific tracking
-        case .speedSolve:
-            return 0.3 // Placeholder - would need timing tracking
-        case .helpOthers:
-            return 0.2 // Placeholder - would need social features
-        case .other:
-            return 0.0
-        }
+        return badge.progress
+    }
+    
+    private func animationForBadge(_ badge: Badge) -> Animation {
+        let index = allBadges.firstIndex(where: { $0.id == badge.id }) ?? 0
+        let delay = Double(index) * 0.05
+        return .spring(response: 0.5, dampingFraction: 0.8).delay(delay)
     }
 }
 
@@ -227,7 +282,7 @@ struct AchievementBackgroundView: View {
 }
 
 struct CategoryCard: View {
-    let category: BadgeCategory
+    let category: Badge.BadgeCategory
     let unlockedCount: Int
     let totalCount: Int
     @State private var isPressed = false
@@ -278,7 +333,7 @@ struct CategoryCard: View {
         }
         .frame(width: 100)
         .padding()
-        .liquidGlass(style: .thin, luminosity: 0.8)
+        .modifier(ConditionalLiquidGlass(style: .thin, luminosity: 0.8))
         .cornerRadius(16)
         .scaleEffect(isPressed ? 0.95 : 1.0)
         .onTapGesture {
@@ -311,8 +366,8 @@ struct BadgeCell: View {
                             .fill(
                                 RadialGradient(
                                     colors: [
-                                        badge.color.opacity(0.3),
-                                        badge.color.opacity(0.1),
+                                        badge.rarity.color.opacity(0.3),
+                                        badge.rarity.color.opacity(0.1),
                                         Color.clear
                                     ],
                                     center: .center,
@@ -333,7 +388,7 @@ struct BadgeCell: View {
                         .trim(from: 0, to: progress)
                         .stroke(
                             LinearGradient(
-                                colors: isUnlocked ? [badge.color, badge.color.opacity(0.7)] : [.gray],
+                                colors: isUnlocked ? [badge.rarity.color, badge.rarity.color.opacity(0.7)] : [.gray],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
@@ -345,7 +400,7 @@ struct BadgeCell: View {
                     // Badge content
                     ZStack {
                         Circle()
-                            .fill(isUnlocked ? badge.color : Color.gray)
+                            .fill(isUnlocked ? badge.rarity.color : Color.gray)
                             .frame(width: 60, height: 60)
                             .overlay(
                                 Circle()
@@ -416,7 +471,7 @@ struct RecentUnlockCard: View {
             // Badge icon
             ZStack {
                 Circle()
-                    .fill(badge.color)
+                    .fill(badge.rarity.color)
                     .frame(width: 50, height: 50)
                     .overlay(
                         Circle()
@@ -458,7 +513,7 @@ struct RecentUnlockCard: View {
                     .font(.headline)
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [badge.color, badge.color.opacity(0.7)],
+                            colors: [badge.rarity.color, badge.rarity.color.opacity(0.7)],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -472,7 +527,7 @@ struct RecentUnlockCard: View {
                 .foregroundColor(.secondary)
         }
         .padding()
-        .liquidGlass(style: .thin, luminosity: 1.2)
+        .modifier(ConditionalLiquidGlass(style: .thin, luminosity: 1.2))
         .cornerRadius(12)
         .onAppear {
             withAnimation(
@@ -492,7 +547,7 @@ struct BadgeDetailSheet: View {
     @State private var celebrateUnlock = false
     
     var isUnlocked: Bool {
-        userManager.unlockedBadges.contains(badge.id)
+        userManager.unlockedBadges.contains(badge.id.uuidString)
     }
     
     var body: some View {
@@ -500,7 +555,7 @@ struct BadgeDetailSheet: View {
             ZStack {
                 // Background
                 LinearGradient(
-                    colors: [badge.color.opacity(0.1), Color.clear],
+                    colors: [badge.rarity.color.opacity(0.1), Color.clear],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -514,7 +569,7 @@ struct BadgeDetailSheet: View {
                         }
                         
                         Circle()
-                            .fill(isUnlocked ? badge.color : Color.gray)
+                            .fill(isUnlocked ? badge.rarity.color : Color.gray)
                             .frame(width: 150, height: 150)
                             .overlay(
                                 Circle()
@@ -527,7 +582,7 @@ struct BadgeDetailSheet: View {
                                     )
                             )
                             .shadow(
-                                color: isUnlocked ? badge.color.opacity(0.4) : .clear,
+                                color: isUnlocked ? badge.rarity.color.opacity(0.4) : .clear,
                                 radius: 20,
                                 x: 0,
                                 y: 10
@@ -546,7 +601,7 @@ struct BadgeDetailSheet: View {
                             .fontWeight(.bold)
                             .foregroundStyle(
                                 LinearGradient(
-                                    colors: isUnlocked ? [badge.color, badge.color.opacity(0.7)] : [.gray],
+                                    colors: isUnlocked ? [badge.rarity.color, badge.rarity.color.opacity(0.7)] : [.gray],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
@@ -561,13 +616,13 @@ struct BadgeDetailSheet: View {
                         // Requirement
                         HStack {
                             Image(systemName: "target")
-                                .foregroundColor(badge.color)
-                            Text(badge.requirementDescription)
+                                .foregroundColor(badge.rarity.color)
+                            Text(badge.description)
                                 .font(.subheadline)
                                 .fontWeight(.medium)
                         }
                         .padding()
-                        .liquidGlass(style: .ultraThin, luminosity: 0.8)
+                        .modifier(ConditionalLiquidGlass(style: .ultraThin, luminosity: 0.8))
                         .cornerRadius(12)
                         
                         // Progress or unlock date
@@ -581,7 +636,7 @@ struct BadgeDetailSheet: View {
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
-                            .tint(badge.color)
+                            .tint(badge.rarity.color)
                             .padding(.horizontal, 40)
                         }
                     }
@@ -608,83 +663,38 @@ struct BadgeDetailSheet: View {
     }
     
     private func getBadgeProgress() -> Double {
-        // Same logic as in parent view
-        switch badge.requirement {
-        case .solveProblemCount(let count):
-            return min(Double(userManager.totalSolves) / Double(count), 1.0)
-        case .maintainStreak(let days):
-            return min(Double(userManager.longestStreak) / Double(days), 1.0)
-        default:
-            return 0.5
-        }
+        return badge.progress
     }
 }
 
 // MARK: - Badge Model Extensions
 
-enum BadgeCategory: String, CaseIterable {
-    case academic = "Academic"
-    case streak = "Consistency"
-    case social = "Community"
-    case special = "Special"
-    
+extension Badge.BadgeCategory {
     var icon: String {
         switch self {
         case .academic: return "graduationcap.fill"
         case .streak: return "flame.fill"
-        case .social: return "person.3.fill"
+        case .mastery: return "star.circle.fill"
         case .special: return "star.fill"
         }
     }
     
     var title: String {
-        rawValue
+        switch self {
+        case .academic: return "Academic"
+        case .streak: return "Consistency"
+        case .mastery: return "Mastery"
+        case .special: return "Special"
+        }
     }
     
     var colors: [Color] {
         switch self {
         case .academic: return [.blue, .cyan]
         case .streak: return [.orange, .red]
-        case .social: return [.green, .mint]
+        case .mastery: return [.green, .mint]
         case .special: return [.purple, .pink]
         }
     }
 }
 
-extension Badge {
-    var category: BadgeCategory {
-        switch requirement {
-        case .solveProblemCount, .solveSubject, .speedSolve:
-            return .academic
-        case .maintainStreak, .completeDaily, .perfectWeek:
-            return .streak
-        case .helpOthers:
-            return .social
-        case .earnPoints, .other:
-            return .special
-        }
-    }
-    
-    var requirementDescription: String {
-        switch requirement {
-        case .solveProblemCount(let count):
-            return "Solve \(count) problems"
-        case .maintainStreak(let days):
-            return "Maintain a \(days)-day streak"
-        case .earnPoints(let points):
-            return "Earn \(points) points"
-        case .solveSubject(let subject, let count):
-            return "Solve \(count) \(subject) problems"
-        case .completeDaily:
-            return "Complete daily goals"
-        case .perfectWeek:
-            return "Complete a perfect week"
-        case .speedSolve:
-            return "Solve problems quickly"
-        case .helpOthers:
-            return "Help other students"
-        case .other(let description):
-            return description
-        }
-    }
-}

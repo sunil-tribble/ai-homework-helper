@@ -136,8 +136,8 @@ struct LiquidGlassScannerView: View {
                         )
                         .frame(width: 300, height: 300)
                         .offset(
-                            x: CGFloat.random(in: -100...geometry.size.width),
-                            y: CGFloat.random(in: -100...geometry.size.height)
+                            x: CGFloat.random(in: -100...max(100, geometry.size.width)),
+                            y: CGFloat.random(in: -100...max(100, geometry.size.height))
                         )
                         .blur(radius: 30)
                         .animation(

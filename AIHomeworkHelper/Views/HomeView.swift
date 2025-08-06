@@ -408,7 +408,7 @@ struct HomeView: View {
             
             HStack(spacing: 16) {
                 NavigationLink(destination: ScannerView()) {
-                    QuickActionCard(
+                    HomeQuickActionCard(
                         icon: "camera.fill",
                         title: "Scan Problem",
                         color: .blue
@@ -416,7 +416,7 @@ struct HomeView: View {
                 }
                 
                 NavigationLink(destination: HistoryView()) {
-                    QuickActionCard(
+                    HomeQuickActionCard(
                         icon: "clock.fill",
                         title: "View History",
                         color: .green
@@ -426,7 +426,7 @@ struct HomeView: View {
             
             HStack(spacing: 16) {
                 Button(action: { showingProgressDashboard = true }) {
-                    QuickActionCard(
+                    HomeQuickActionCard(
                         icon: "chart.xyaxis.line",
                         title: "Progress",
                         color: .purple
@@ -434,7 +434,7 @@ struct HomeView: View {
                 }
                 
                 NavigationLink(destination: ProfileView()) {
-                    QuickActionCard(
+                    HomeQuickActionCard(
                         icon: "person.fill",
                         title: "Profile",
                         color: .orange
@@ -494,7 +494,7 @@ struct HomeView: View {
     }
 }
 
-struct QuickActionCard: View {
+struct HomeQuickActionCard: View {
     let icon: String
     let title: String
     let color: Color

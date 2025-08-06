@@ -5,11 +5,11 @@ struct Config {
     static let backendURL: String = {
         // For development, use localhost
         #if DEBUG
-        return "http://localhost:3000/api/v1"
+        return "http://localhost:3000"
         #else
         // For production, use your deployed backend URL
-        // Digital Ocean Deployment: https://159.203.129.37/api/v1
-        return "https://159.203.129.37/api/v1"
+        // Digital Ocean Deployment: https://159.203.129.37
+        return "https://159.203.129.37"
         #endif
     }()
     

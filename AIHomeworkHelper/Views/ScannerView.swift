@@ -467,6 +467,7 @@ struct SubjectChip: View {
             action()
         }
     }
+}
 
 @available(iOS 17.0, *)
 struct ScanOptionCard: View {

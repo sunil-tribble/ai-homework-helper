@@ -940,7 +940,7 @@ struct ConfettiPiece: View {
     
     var body: some View {
         RoundedRectangle(cornerRadius: size / 4)
-            .fill(colors.randomElement()!)
+            .fill(colors.randomElement() ?? .blue)
             .frame(width: size, height: size * 1.5)
             .rotationEffect(.degrees(rotation))
             .rotation3DEffect(

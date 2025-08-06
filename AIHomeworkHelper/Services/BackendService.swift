@@ -46,7 +46,7 @@ class BackendService: ObservableObject {
         )
         
         let response: AuthResponse = try await request(
-            endpoint: "/auth/device",
+            endpoint: "/api/v1/auth/device",
             method: "POST",
             body: body
         )
@@ -62,7 +62,7 @@ class BackendService: ObservableObject {
         let body = LoginRequest(email: email, password: password)
         
         let response: AuthResponse = try await request(
-            endpoint: "/auth/login",
+            endpoint: "/api/v1/auth/login",
             method: "POST",
             body: body
         )
@@ -76,7 +76,7 @@ class BackendService: ObservableObject {
     
     func logout() async throws {
         let _: EmptyResponse = try await request(
-            endpoint: "/auth/logout",
+            endpoint: "/api/v1/auth/logout",
             method: "POST",
             authenticated: true
         )
@@ -89,7 +89,7 @@ class BackendService: ObservableObject {
     func validateSession() async {
         do {
             let response: MeResponse = try await request(
-                endpoint: "/users/me",
+                endpoint: "/api/v1/users/me",
                 method: "GET",
                 authenticated: true
             )
@@ -116,7 +116,7 @@ class BackendService: ObservableObject {
         }
         
         return try await request(
-            endpoint: "/homework/solve",
+            endpoint: "/api/v1/homework/solve",
             method: "POST",
             body: body,
             authenticated: true
@@ -125,7 +125,7 @@ class BackendService: ObservableObject {
     
     func getProblemHistory(limit: Int = 20, offset: Int = 0) async throws -> HistoryResponse {
         return try await request(
-            endpoint: "/homework/history?limit=\(limit)&offset=\(offset)",
+            endpoint: "/api/v1/homework/history?limit=\(limit)&offset=\(offset)",
             method: "GET",
             authenticated: true
         )
@@ -135,7 +135,7 @@ class BackendService: ObservableObject {
         let body = RateProblemRequest(rating: rating, wasHelpful: wasHelpful)
         
         let _: EmptyResponse = try await request(
-            endpoint: "/homework/problem/\(problemId)/rate",
+            endpoint: "/api/v1/homework/problem/\(problemId)/rate",
             method: "POST",
             body: body,
             authenticated: true
@@ -146,7 +146,7 @@ class BackendService: ObservableObject {
         let body = ResourcesRequest(question: question, subject: subject.rawValue)
         
         return try await request(
-            endpoint: "/homework/resources",
+            endpoint: "/api/v1/homework/resources",
             method: "POST",
             body: body,
             authenticated: true
@@ -166,7 +166,7 @@ class BackendService: ObservableObject {
         )
         
         return try await request(
-            endpoint: "/subscription/process",
+            endpoint: "/api/v1/subscription/process",
             method: "POST",
             body: body,
             authenticated: true
@@ -175,7 +175,7 @@ class BackendService: ObservableObject {
     
     func getSubscriptionStatus() async throws -> SubscriptionStatusResponse {
         return try await request(
-            endpoint: "/subscription/status",
+            endpoint: "/api/v1/subscription/status",
             method: "GET",
             authenticated: true
         )

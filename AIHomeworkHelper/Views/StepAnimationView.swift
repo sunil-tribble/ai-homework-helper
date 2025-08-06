@@ -104,11 +104,11 @@ struct StepAnimationView: View {
     
     private func extractExplanation(from text: String) -> String? {
         // Extract explanation part (after colon or parentheses)
-        if let colonRange = text.range(of: ":") {
+        if let colonRange = text.range(of: ":"), colonRange.upperBound < text.endIndex {
             return String(text[colonRange.upperBound...]).trimmingCharacters(in: .whitespaces)
         }
         
-        if let parenRange = text.range(of: "(") {
+        if let parenRange = text.range(of: "("), parenRange.lowerBound < text.endIndex {
             return String(text[parenRange.lowerBound...])
         }
         
